@@ -16,10 +16,15 @@ import androidx.fragment.app.Fragment;
 import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProviders;
 
+import com.reservationhotel.hotelreservation.mrlufer.AdapterHotel;
+import com.reservationhotel.hotelreservation.mrlufer.Hotel;
 import com.reservationhotel.hotelreservation.mrlufer.R;
+
+import java.util.ArrayList;
 
 public class GalleryFragment extends Fragment {
     ListView listView;
+    AdapterHotel adapter;
     String[] elementos = {"Belmond Miraflores Park", "JW Marriot Hotel Lima", "Courtyard Miraflores", "The Westin Lima hotel", "Hotel Estelar", "Swissôtel Lima", "Hilton Lima Miraflores", "Country Club Lima", "Casa Andina Private"};
 
 
@@ -37,9 +42,15 @@ public class GalleryFragment extends Fragment {
     public void onActivityCreated(Bundle state) {
         super.onActivityCreated(state);
         listView = (ListView) getView().findViewById(R.id.listView);
+        ArrayList<Hotel> category = new ArrayList<>();
+        category.add(new Hotel("","Belmond Miraflores Park",""));
+        category.add(new Hotel("","JW Marriot Hotel Lima",""));
+        category.add(new Hotel("","Courtyard Miraflores",""));
+        category.add(new Hotel("","The Westin Lima hotel",""));
+        category.add(new Hotel("","Hotel Estelar",""));
 
-        ArrayAdapter<String> adapter = new ArrayAdapter<String>(getActivity().getApplicationContext(), android.R.layout.simple_expandable_list_item_1,elementos);
-        listView.setAdapter(adapter);
+        adapter = new AdapterHotel(getActivity(), category);
+         listView.setAdapter(adapter);
         listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
