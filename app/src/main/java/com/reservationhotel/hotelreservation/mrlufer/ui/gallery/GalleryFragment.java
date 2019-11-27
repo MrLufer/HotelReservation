@@ -6,6 +6,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
+import android.widget.Button;
 import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -25,6 +26,7 @@ import java.util.ArrayList;
 public class GalleryFragment extends Fragment {
     ListView listView;
     AdapterHotel adapter;
+
     String[] elementos = {"Belmond Miraflores Park", "JW Marriot Hotel Lima", "Courtyard Miraflores", "The Westin Lima hotel", "Hotel Estelar", "Swissôtel Lima", "Hilton Lima Miraflores", "Country Club Lima", "Casa Andina Private"};
 
 
@@ -41,6 +43,7 @@ public class GalleryFragment extends Fragment {
     @Override
     public void onActivityCreated(Bundle state) {
         super.onActivityCreated(state);
+
         listView = (ListView) getView().findViewById(R.id.listView);
         ArrayList<Hotel> category = new ArrayList<>();
         category.add(new Hotel("","Belmond Miraflores Park",""));
@@ -51,12 +54,7 @@ public class GalleryFragment extends Fragment {
 
         adapter = new AdapterHotel(getActivity(), category);
          listView.setAdapter(adapter);
-        listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-            @Override
-            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                Toast.makeText(getActivity().getApplicationContext(),String.valueOf(position),Toast.LENGTH_SHORT).show();
 
-            }
-        });
+
     }
 }

@@ -3,12 +3,17 @@ package com.reservationhotel.hotelreservation.mrlufer;
 
 import android.app.Activity;
 import android.content.Context;
+import android.content.Intent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
+import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
+import android.app.Fragment;
+import android.app.FragmentTransaction;
 
 import java.util.ArrayList;
 
@@ -62,6 +67,19 @@ public class AdapterHotel extends BaseAdapter {
 
         TextView description = (TextView) v.findViewById(R.id.texto);
         description.setText(dir.getDescription());
+
+        final Button btnreserva = v.findViewById(R.id.btnreserva);
+
+        btnreserva.setOnClickListener(new View.OnClickListener()
+        {
+            @Override
+            public void onClick(View v)
+            {
+                Toast.makeText(v.getContext(),"Text!",Toast.LENGTH_SHORT).show();
+                Intent intent = new Intent(v.getContext(), Details.class);
+                activity.startActivity(intent);
+            }
+        });
 
         /*ImageView imagen = (ImageView) v.findViewById(R.id.imageView);
         imagen.setImageDrawable(dir.getImage());
