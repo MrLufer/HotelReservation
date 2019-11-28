@@ -7,13 +7,28 @@ import android.content.Intent;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.DatePicker;
 import android.widget.EditText;
+import android.widget.ListView;
 import android.widget.TextView;
 
+import org.json.JSONArray;
+import org.json.JSONException;
+
+import java.io.IOException;
 import java.util.Calendar;
+import java.util.concurrent.TimeUnit;
+
+import okhttp3.Call;
+import okhttp3.Callback;
+import okhttp3.MediaType;
+import okhttp3.OkHttpClient;
+import okhttp3.Request;
+import okhttp3.RequestBody;
+import okhttp3.Response;
 
 public class Details extends AppCompatActivity {
 
@@ -81,14 +96,73 @@ public class Details extends AppCompatActivity {
         });
     }
 
-    private void submitReservation(String date) {
+    private void submitReservation(String bir) {
+
+        String[] date = bir.split("/");
+        String newBir = date[0]+"-"+date[1]+"-"+date[2];
+
 
         String postUrl = "https://hotel-reservation-lufer.herokuapp.com/api/reservation";
         String postBody = "{\n" +
                 "    \"hotel\": \""+ getIntent().getStringExtra("id")+"\",\n" +
-                "    \"date\": \""+ date+"\"\n" +
+                "    \"date\": \""+ newBir+"\",\n" +
+                "    \"price\": \"150\"\n" +
                 "}";
 
-        //postRequest(postUrl, postBody);
+        postRequest(postUrl, postBody);
+    }
+
+
+    public static final MediaType JSON = MediaType.parse("application/json; charset=utf-8");
+    String result;
+    int code;
+
+    private void postRequest(String postUrl,  String postBody) {
+
+        OkHttpClient client = new OkHttpClient.Builder()
+                .connectTimeout(15, TimeUnit.SECONDS)
+                .writeTimeout(15, TimeUnit.SECONDS)
+                .readTimeout(30, TimeUnit.SECONDS)
+                .build();
+
+        final RequestBody body = RequestBody.create(JSON, postBody);
+
+        Request request = new Request.Builder()
+                .url(postUrl)
+                .post(body)
+                .build();
+
+        Log.e("Http Request", "Url: " + postUrl + "/Data: " + postBody);
+        client.newCall(request).enqueue(new Callback() {
+            @Override
+            public void onFailure(Call call, IOException e) {
+
+            }
+
+            @Override
+            public void onResponse(Call call, Response response) throws IOException {
+
+                code = response.code();
+                result = response.body().string();
+
+                Log.e("Server Response", "Code: " + code + "/Data: " + result);
+                //JSONArray hoteles = new JSONArray();
+
+
+                if (code == 200) {
+
+
+
+                }else if ( code == 400 ){
+
+
+
+                }else if ( code == 500 ){
+
+
+
+                }
+            }
+        });
     }
 }

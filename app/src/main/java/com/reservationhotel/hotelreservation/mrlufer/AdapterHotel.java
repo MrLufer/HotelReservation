@@ -68,6 +68,10 @@ public class AdapterHotel extends BaseAdapter {
         TextView description = (TextView) v.findViewById(R.id.texto);
         description.setText(dir.getDescription());
 
+
+
+
+
         final Button btnreserva = v.findViewById(R.id.btnreserva);
 
         btnreserva.setOnClickListener(new View.OnClickListener()
@@ -79,6 +83,8 @@ public class AdapterHotel extends BaseAdapter {
                 intent.putExtra("title", dir.getTitle());
                 intent.putExtra("category", dir.getCategoryId());
                 intent.putExtra("description", dir.getDescription());
+                intent.putExtra("id", dir.getId());
+
                 activity.startActivity(intent);
             }
         });
