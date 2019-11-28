@@ -60,7 +60,7 @@ public class AdapterHotel extends BaseAdapter {
             v = inf.inflate(R.layout.item_hotel, null);
         }
 
-        Hotel dir = items.get(position);
+        final Hotel dir = items.get(position);
 
         TextView title = (TextView) v.findViewById(R.id.category);
         title.setText(dir.getTitle());
@@ -75,8 +75,10 @@ public class AdapterHotel extends BaseAdapter {
             @Override
             public void onClick(View v)
             {
-                Toast.makeText(v.getContext(),"Text!",Toast.LENGTH_SHORT).show();
                 Intent intent = new Intent(v.getContext(), Details.class);
+                intent.putExtra("title", dir.getTitle());
+                intent.putExtra("category", dir.getCategoryId());
+                intent.putExtra("description", dir.getDescription());
                 activity.startActivity(intent);
             }
         });
