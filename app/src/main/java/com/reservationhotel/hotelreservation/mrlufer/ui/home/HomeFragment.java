@@ -22,9 +22,11 @@ import androidx.lifecycle.ViewModelProviders;
 import com.github.davidmoten.rtree2.RTree;
 import com.github.davidmoten.rtree2.geometry.Geometries;
 import com.github.davidmoten.rtree2.geometry.Rectangle;
+import com.reservationhotel.hotelreservation.mrlufer.AdapterReservation;
 import com.reservationhotel.hotelreservation.mrlufer.Hotel;
 import com.reservationhotel.hotelreservation.mrlufer.LoginActivity;
 import com.reservationhotel.hotelreservation.mrlufer.R;
+import com.reservationhotel.hotelreservation.mrlufer.Reservation;
 
 
 import org.json.JSONArray;
@@ -33,6 +35,7 @@ import org.json.JSONObject;
 
 import java.io.IOException;
 import java.security.GeneralSecurityException;
+import java.util.ArrayList;
 import java.util.concurrent.TimeUnit;
 
 import okhttp3.Call;
@@ -45,11 +48,9 @@ import okhttp3.Response;
 
 public class HomeFragment extends Fragment {
 
-
-
-
+    AdapterReservation adapter;
     ListView listView;
-    String[] elementos = {"Belmond Miraflores Park", "JW Marriot Hotel Lima", "Courtyard Miraflores", "The Westin Lima hotel", "Hotel Estelar", "Swissôtel Lima", "Hilton Lima Miraflores", "Country Club Lima", "Casa Andina Private"};
+    ArrayList<Reservation> listdata = new ArrayList<>();
 
     private HomeViewModel homeViewModel;
 
@@ -68,21 +69,7 @@ public class HomeFragment extends Fragment {
     @Override
     public void onActivityCreated(Bundle state) {
         super.onActivityCreated(state);
-        getRequest("https://hotel-reservation-lufer.herokuapp.com/api/hotel",  "");
-        RTree<Hotel, Rectangle> tree = RTree.maxChildren(4).create();
-
-        //tree = tree.add(item, Geometries.point(10,20));
-         listView = (ListView) getView().findViewById(R.id.listView);
-
-        ArrayAdapter<String> adapter = new ArrayAdapter<String>(getActivity().getApplicationContext(), android.R.layout.simple_expandable_list_item_1,elementos);
-        listView.setAdapter(adapter);
-        listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-            @Override
-            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                Toast.makeText(getActivity().getApplicationContext(),String.valueOf(position),Toast.LENGTH_SHORT).show();
-
-            }
-        });
+        getRequest("https://hotel-reservation-lufer.herokuapp.com/api/reservation",  "");
     }
 
     public static final MediaType JSON = MediaType.parse("application/json; charset=utf-8");
@@ -118,33 +105,34 @@ public class HomeFragment extends Fragment {
                 result = response.body().string();
 
                 Log.e("Server Response", "Code: " + code + "/Data: " + result);
-                JSONArray hoteles = new JSONArray();
 
+                if (code == 200) {
 
-                    if (code == 200) {
+                    try {
+                        final JSONArray hoteles = new JSONArray(result);
+                        listdata.clear();
 
-                        try {
-                            final JSONObject jsonObject = new JSONObject(result);
-                             hoteles.put(jsonObject);
+                        for (int i=0;i<hoteles.length();i++){
+                            String hotelId = hoteles.getJSONObject(i).getJSONObject("hotel").getString("_id");
+                            String hotelTitle = hoteles.getJSONObject(i).getJSONObject("hotel").getString("title");
+                            String date = hoteles.getJSONObject(i).getString("date");
+                            String price = hoteles.getJSONObject(i).getString("price");
+                            String id = hoteles.getJSONObject(i).getString("_id");
 
-
-
-                          //  if(jsonObject.has("hoteles")) hoteles  = jsonObject.getJSONArray("hoteles");
-
-                        } catch (JSONException e) {
-                            e.printStackTrace();
+                            Reservation reservation = new Reservation(id, hotelTitle, date, hotelId, price);
+                            listdata.add(reservation);
+                        }
+                        if (getActivity() != null) {
+                            getActivity().runOnUiThread(() -> {
+                                listView = getView().findViewById(R.id.listView);
+                                adapter = new AdapterReservation(getActivity(), listdata);
+                                listView.setAdapter(adapter);
+                            });
                         }
 
-
-
-                    }else if ( code == 400 ){
-
-
-
-                    }else if ( code == 500 ){
-
-
-
+                    } catch (JSONException e) {
+                        e.printStackTrace();
+                    }
                 }
             }
         });

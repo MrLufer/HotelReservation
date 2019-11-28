@@ -14,12 +14,7 @@ public class LoginActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
         final Button btn_login = findViewById(R.id.btn_login);
-        btn_login.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                startActivity(new Intent(LoginActivity.this, MainActivity.class));
-            }
-        });
+        btn_login.setOnClickListener(v -> startActivity(new Intent(LoginActivity.this, MainActivity.class)));
     }
 
 
