@@ -138,8 +138,7 @@ public class GalleryFragment extends Fragment {
 
 
                             }
-                            Iterable<T> it = tree.search(Geometries.point(4,5))
-                                    .toBlocking().toIterable();
+                            
 
 
 
