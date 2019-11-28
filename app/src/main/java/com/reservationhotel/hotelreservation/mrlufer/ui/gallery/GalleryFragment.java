@@ -10,6 +10,7 @@ import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -39,6 +40,7 @@ import org.json.JSONObject;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.concurrent.TimeUnit;
+import java.util.function.Consumer;
 
 import okhttp3.Call;
 import okhttp3.Callback;
@@ -55,17 +57,24 @@ public class GalleryFragment extends Fragment {
     AdapterHotel adapter;
     ArrayList<Hotel> listdata = new ArrayList<>();
     RTree<Hotel, Rectangle> tree = RTree.maxChildren(5).create();
+    EditText et_x, et_y, et_radius;
     String[] elementos = {"Belmond Miraflores Park", "JW Marriot Hotel Lima", "Courtyard Miraflores", "The Westin Lima hotel", "Hotel Estelar", "Swissôtel Lima", "Hilton Lima Miraflores", "Country Club Lima", "Casa Andina Private"};
 
 
     private GalleryViewModel galleryViewModel;
 
+    @RequiresApi(api = Build.VERSION_CODES.N)
     public View onCreateView(@NonNull LayoutInflater inflater,
                              ViewGroup container, Bundle savedInstanceState) {
         galleryViewModel =
                 ViewModelProviders.of(this).get(GalleryViewModel.class);
         View root = inflater.inflate(R.layout.fragment_gallery, container, false);
 
+        et_x = root.findViewById(R.id.et_x);
+        et_y = root.findViewById(R.id.et_y);
+        et_radius = root.findViewById(R.id.et_radius);
+        final Button btn_search = root.findViewById(R.id.btn_search);
+        btn_search.setOnClickListener(v -> filterHotels());
         return root;
     }
     @Override
@@ -74,6 +83,17 @@ public class GalleryFragment extends Fragment {
 
         getRequest("https://hotel-reservation-lufer.herokuapp.com/api/hotel",  "");
 
+    }
+
+    @RequiresApi(api = Build.VERSION_CODES.N)
+    private void filterHotels() {
+        listView = getView().findViewById(R.id.listView);
+        listdata.clear();
+        Iterable<Entry<Hotel, Rectangle>> it = tree.search(Geometries.circle(Float.parseFloat(et_x.getText().toString()),
+                Float.parseFloat(et_y.getText().toString()), Float.parseFloat(et_radius.getText().toString())));
+        it.forEach(entry -> listdata.add(entry.value()));
+        adapter = new AdapterHotel(getActivity(), listdata);
+        listView.setAdapter(adapter);
     }
 
     public static final MediaType JSON = MediaType.parse("application/json; charset=utf-8");
@@ -117,61 +137,30 @@ public class GalleryFragment extends Fragment {
 
                     try {
                         final JSONArray hoteles = new JSONArray(result);
-                        if (hoteles != null) {
-                            listView = (ListView) getView().findViewById(R.id.listView);
-                            listdata.clear();
 
-                            for (int i=0;i<hoteles.length();i++){
-                                String title = hoteles.getJSONObject(i).getString("title");
-                                String category = hoteles.getJSONObject(i).getString("category");
-                                String description = hoteles.getJSONObject(i).getString("description");
-                                String imagen = hoteles.getJSONObject(i).getString("imageUrl");
-                                String id = hoteles.getJSONObject(i).getString("_id");
-                                float lat = Float.parseFloat(hoteles.getJSONObject(i).getString("lat"));
-                                float lng = Float.parseFloat(hoteles.getJSONObject(i).getString("lng"));
+                        for (int i=0;i<hoteles.length();i++){
+                            String title = hoteles.getJSONObject(i).getString("title");
+                            String category = hoteles.getJSONObject(i).getString("category");
+                            String description = hoteles.getJSONObject(i).getString("description");
+                            String imagen = hoteles.getJSONObject(i).getString("imageUrl");
+                            String id = hoteles.getJSONObject(i).getString("_id");
+                            float lat = Float.parseFloat(hoteles.getJSONObject(i).getString("lat"));
+                            float lng = Float.parseFloat(hoteles.getJSONObject(i).getString("lng"));
 
-                                Hotel hotel = new Hotel(id,imagen,category,title,description ,lat,lng);
+                            Hotel hotel = new Hotel(id,imagen,category,title,description ,lat,lng);
 
-                                tree = tree.add(hotel, point(lat,lng));
-
-
-
-
-                            }
-
-
-
-
-
-
-                            //it.forEach(listdata::add);
-
-                            //listdata.add(hotel);
-
-                            getActivity().runOnUiThread(new Runnable() {
-                                @Override
-                                public void run() {                          adapter = new AdapterHotel(getActivity(), listdata);
-                                    listView.setAdapter(adapter);
-                                }
-                            });
-
+                            tree = tree.add(hotel, point(lat,lng));
                         }
+                        //Iterable<Entry<Hotel, Rectangle>> it = tree.search(Geometries.point(0,500));
 
-
+                        if (getActivity() != null) {
+                            getActivity().runOnUiThread(() -> {
+                                filterHotels();
+                            });
+                        }
                     } catch (JSONException e) {
                         e.printStackTrace();
                     }
-
-
-
-                }else if ( code == 400 ){
-
-
-
-                }else if ( code == 500 ){
-
-
-
                 }
             }
         });
