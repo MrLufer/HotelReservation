@@ -7,6 +7,7 @@ public class Hotel  {
     private String title;
     private String categoryId;
     private String description;
+    private float lat ,lgt;
    // private Drawable imagen;
 
     public Hotel() {
