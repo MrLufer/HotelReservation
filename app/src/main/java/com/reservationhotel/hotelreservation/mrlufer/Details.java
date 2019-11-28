@@ -1,22 +1,19 @@
 package com.reservationhotel.hotelreservation.mrlufer;
 
-import androidx.appcompat.app.AppCompatActivity;
-
 import android.app.DatePickerDialog;
-import android.content.Intent;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
 import android.util.Log;
-import android.view.View;
 import android.widget.Button;
-import android.widget.DatePicker;
 import android.widget.EditText;
-import android.widget.ListView;
+import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
-import org.json.JSONArray;
-import org.json.JSONException;
+import androidx.appcompat.app.AppCompatActivity;
+
+import com.bumptech.glide.Glide;
 
 import java.io.IOException;
 import java.util.Calendar;
@@ -40,73 +37,67 @@ public class Details extends AppCompatActivity {
         final TextView text_title = findViewById(R.id.text_hotel_details_title);
         final TextView text_description = findViewById(R.id.text_hotel_details_description);
         final EditText et_date = findViewById(R.id.text_date);
+        ImageView imagen = findViewById(R.id.imageView2);
         text_title.setText(getIntent().getStringExtra("title"));
         text_description.setText(getIntent().getStringExtra("description"));
+        Glide
+                .with(imagen.getContext())
+                .load(getIntent().getStringExtra("image"))
+                .centerCrop()
+                .into(imagen);
 
-        et_date.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Calendar cal = Calendar.getInstance();
-                int year = cal.get(Calendar.YEAR);
-                int month = cal.get(Calendar.MONTH);
-                int day = cal.get(Calendar.DAY_OF_MONTH);
-                DatePickerDialog dialog = new DatePickerDialog(
-                        Details.this,
-                        android.R.style.Theme_Holo_Light_Dialog_MinWidth,
-                        new DatePickerDialog.OnDateSetListener() {
-                            @Override
-                            public void onDateSet(DatePicker view, int year, int month, int dayOfMonth) {
+        et_date.setOnClickListener(v -> {
+            Calendar cal = Calendar.getInstance();
+            int year = cal.get(Calendar.YEAR);
+            int month = cal.get(Calendar.MONTH);
+            int day = cal.get(Calendar.DAY_OF_MONTH);
+            DatePickerDialog dialog = new DatePickerDialog(
+                    Details.this,
+                    android.R.style.Theme_Holo_Light_Dialog_MinWidth,
+                    (view, year1, month1, dayOfMonth) -> {
 
-                                month = month + 1;
-                                String day,mon ;
-                                if(dayOfMonth==1) day = "01";
-                                else if(dayOfMonth==2) day = "02";
-                                else if(dayOfMonth==3) day = "03";
-                                else if(dayOfMonth==4) day = "04";
-                                else if(dayOfMonth==5) day = "05";
-                                else if(dayOfMonth==6) day = "06";
-                                else if(dayOfMonth==7) day = "07";
-                                else if(dayOfMonth==8) day = "08";
-                                else if(dayOfMonth==9) day = "09";
-                                else day = String.valueOf(dayOfMonth);
-                                if(month==1) mon = "01";
-                                else if(month==2) mon = "02";
-                                else if(month==3) mon = "03";
-                                else if(month==4) mon = "04";
-                                else if(month==5) mon = "05";
-                                else if(month==6) mon = "06";
-                                else if(month==7) mon = "07";
-                                else if(month==8) mon = "08";
-                                else if(month==9) mon = "09";
-                                else mon = String.valueOf(month);
-                                String date = day + "/" + mon + "/" + year;
-                                et_date.setText(date);
-                            }
-                        },
-                        year,month,day);
-                dialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
-                dialog.show();
-            }
+                        month1 = month1 + 1;
+                        String day1,mon ;
+                        if(dayOfMonth==1) day1 = "01";
+                        else if(dayOfMonth==2) day1 = "02";
+                        else if(dayOfMonth==3) day1 = "03";
+                        else if(dayOfMonth==4) day1 = "04";
+                        else if(dayOfMonth==5) day1 = "05";
+                        else if(dayOfMonth==6) day1 = "06";
+                        else if(dayOfMonth==7) day1 = "07";
+                        else if(dayOfMonth==8) day1 = "08";
+                        else if(dayOfMonth==9) day1 = "09";
+                        else day1 = String.valueOf(dayOfMonth);
+                        if(month1 ==1) mon = "01";
+                        else if(month1 ==2) mon = "02";
+                        else if(month1 ==3) mon = "03";
+                        else if(month1 ==4) mon = "04";
+                        else if(month1 ==5) mon = "05";
+                        else if(month1 ==6) mon = "06";
+                        else if(month1 ==7) mon = "07";
+                        else if(month1 ==8) mon = "08";
+                        else if(month1 ==9) mon = "09";
+                        else mon = String.valueOf(month1);
+                        String date = day1 + "/" + mon + "/" + year1;
+                        et_date.setText(date);
+                    },
+                    year,month,day);
+            dialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
+            dialog.show();
         });
-        btn_reserva.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                submitReservation(et_date.getText().toString());
-            }
-        });
+        btn_reserva.setOnClickListener(v -> submitReservation(et_date.getText().toString()));
     }
 
-    private void submitReservation(String bir) {
+    private void submitReservation(String date) {
 
-        String[] date = bir.split("/");
-        String newBir = date[0]+"-"+date[1]+"-"+date[2];
-
-
+        if(date.equals("") || date.length()<10) {
+            Toast.makeText(Details.this, "Ingrese la fecha de reserva", Toast.LENGTH_LONG).show();
+            return;
+        }
         String postUrl = "https://hotel-reservation-lufer.herokuapp.com/api/reservation";
         String postBody = "{\n" +
                 "    \"hotel\": \""+ getIntent().getStringExtra("id")+"\",\n" +
-                "    \"date\": \""+ newBir+"\",\n" +
-                "    \"price\": \"150\"\n" +
+                "    \"date\": \""+ date+"\"\n" +
                 "}";
 
         postRequest(postUrl, postBody);
@@ -133,6 +124,8 @@ public class Details extends AppCompatActivity {
                 .build();
 
         Log.e("Http Request", "Url: " + postUrl + "/Data: " + postBody);
+        final Button btn_reserva = findViewById(R.id.btn_reserva);
+        btn_reserva.setEnabled(false);
         client.newCall(request).enqueue(new Callback() {
             @Override
             public void onFailure(Call call, IOException e) {
@@ -146,21 +139,17 @@ public class Details extends AppCompatActivity {
                 result = response.body().string();
 
                 Log.e("Server Response", "Code: " + code + "/Data: " + result);
-                //JSONArray hoteles = new JSONArray();
-
 
                 if (code == 200) {
-
-
-
-                }else if ( code == 400 ){
-
-
-
-                }else if ( code == 500 ){
-
-
-
+                    Details.this.runOnUiThread(() -> {
+                        Toast.makeText(Details.this, "Reserva creada", Toast.LENGTH_LONG).show();
+                        finish();
+                    });
+                } else {
+                    Details.this.runOnUiThread(() -> {
+                        Toast.makeText(Details.this, "Ocurrió un error", Toast.LENGTH_LONG).show();
+                        btn_reserva.setEnabled(true);
+                    });
                 }
             }
         });

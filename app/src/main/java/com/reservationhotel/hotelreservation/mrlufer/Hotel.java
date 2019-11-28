@@ -88,7 +88,7 @@ public class Hotel  {
 
      */
 
-   /* public void setImagen(Drawable imagen) {
+   /* public void setHotelTitle(Drawable imagen) {
         this.imagen = imagen;
     }
 
